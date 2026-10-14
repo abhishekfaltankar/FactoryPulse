@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FactoryPulse | Industrial Predictive Maintenance Intelligence Platform</title>
+  <meta name="description" content="Enterprise real-time predictive maintenance dashboard with physics-based machine learning anomaly detection and automated maintenance workflows.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <div class="logo-pulse"></div>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>FactoryPulse <span class="brand-badge">IIoT ML</span></h1>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-btn active" data-tab="tab-fleet" id="btn-tab-fleet">
+          <span>🌐 Fleet Overview</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-telemetry" id="btn-tab-telemetry">
+          <span>⚙️ Machine Telemetry</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-simulator" id="btn-tab-simulator">
+          <span>⚡ Live Simulator</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-ml" id="btn-tab-ml">
+          <span>🧠 Model Intelligence</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-alerts" id="btn-tab-alerts">
+          <span>🚨 Alerts & Maintenance</span>
+        </button>
+      </nav>
+
+      <div class="system-status">
+        <div class="status-pill" id="backend-health-pill">
+          <span class="status-dot"></span>
+          <span id="backend-status-text">API Online</span>
+        </div>
+        <button class="btn-primary" id="btn-quick-stream" title="Ingest live simulated batch">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Stream Telemetry
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Areas -->
+  <main>
+    <!-- TAB 1: FLEET OVERVIEW -->
+    <section id="tab-fleet" class="tab-pane active">
+      <!-- KPI Stats Grid -->
+      <div class="stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon cyan">🏢</div>
+          <div class="stat-data">
+            <h3>Monitored Assets</h3>
+            <div class="stat-value" id="kpi-total-machines">-</div>
+            <div class="stat-sub">Across All Plant Sectors</div>
+          </div>
+        </div>
+
+        <div class="glass-card stat-card">
+          <div class="stat-icon emerald">💚</div>
+          <div class="stat-data">
+            <h3>Fleet Health Index</h3>
+            <div class="stat-value" id="kpi-avg-health">-%</div>
+            <div class="stat-sub">Weighted Physics Rating</div>
+          </div>
+        </div>
+
+        <div class="glass-card stat-card">
+          <div class="stat-icon rose">🚨</div>
+          <div class="stat-data">
+            <h3>Active High Alerts</h3>
+            <div class="stat-value" id="kpi-active-alerts">-</div>
+            <div class="stat-sub">Requiring Action</div>
+          </div>
+        </div>
+
+        <div class="glass-card stat-card">
+          <div class="stat-icon amber">⚠️</div>
+          <div class="stat-data">
+            <h3>Failure Risk Signals</h3>
+            <div class="stat-value" id="kpi-risk-signals">-</div>
+            <div class="stat-sub">Identified Today</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fleet Machine Cards Grid -->
+      <div class="section-header">
+        <h2>Industrial Machine Fleet Status</h2>
+        <button class="btn-secondary" id="btn-refresh-fleet">↻ Refresh Fleet</button>
+      </div>
+      <div class="machine-grid" id="fleet-machines-container">
+        <!-- Dynamically rendered machine cards -->
+      </div>
+    </section>
+
+    <!-- TAB 2: MACHINE TELEMETRY & HEALTH -->
+    <section id="tab-telemetry" class="tab-pane">
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2>Real-Time Machine Telemetry Monitor</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">Continuous sensor telemetry streaming and physics metrics</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label for="select-machine-telemetry" style="font-size: 0.85rem; color: var(--text-secondary);">Select Machine:</label>
+            <select id="select-machine-telemetry" class="form-select" style="width: 220px;"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Sensors Grid -->
+      <div class="stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon cyan">🌡️</div>
+          <div class="stat-data">
+            <h3>Air Temperature</h3>
+            <div class="stat-value" id="live-air-temp">-- K</div>
+            <div class="stat-sub" id="live-air-celsius">-- °C</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon amber">🔥</div>
+          <div class="stat-data">
+            <h3>Process Temperature</h3>
+            <div class="stat-value" id="live-proc-temp">-- K</div>
+            <div class="stat-sub" id="live-temp-delta">Delta: -- K</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon emerald">🔄</div>
+          <div class="stat-data">
+            <h3>Spindle Speed</h3>
+            <div class="stat-value" id="live-speed">-- RPM</div>
+            <div class="stat-sub">Kinetic Frequency</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon rose">⚡</div>
+          <div class="stat-data">
+            <h3>Motor Torque</h3>
+            <div class="stat-value" id="live-torque">-- Nm</div>
+            <div class="stat-sub" id="live-calc-power">Power: -- W</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div class="glass-card">
+          <h3>Thermal Dynamics (Air vs Process Temp)</h3>
+          <div class="chart-container">
+            <canvas id="chart-thermal"></canvas>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3>Spindle Speed & Torque Relationship</h3>
+          <div class="chart-container">
+            <canvas id="chart-mechanical"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Telemetry Table -->
+      <div class="glass-card">
+        <div class="section-header">
+          <h3>Historical Telemetry Ingestion Log</h3>
+        </div>
+        <div class="table-responsive">
+          <table id="table-telemetry">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Air Temp [K]</th>
+                <th>Process Temp [K]</th>
+                <th>Speed [RPM]</th>
+                <th>Torque [Nm]</th>
+                <th>Tool Wear [min]</th>
+              </tr>
+            </thead>
+            <tbody id="telemetry-tbody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: LIVE INFERENCE SIMULATOR -->
+    <section id="tab-simulator" class="tab-pane">
+      <div class="simulator-layout">
+        <!-- Simulator Inputs -->
+        <div class="glass-card">
+          <h2>Predictive Failure Simulator Deck</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Test the real scikit-learn predictive maintenance engine with live telemetry or preset physical failure scenarios.
+          </p>
+
+          <!-- Quick Presets -->
+          <div style="margin-bottom: 1rem;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Quick Physical Scenarios:</span>
+            <div class="preset-scenarios" style="margin-top: 0.4rem;">
+              <button class="preset-btn" id="preset-normal">🟢 Nominal High Efficiency</button>
+              <button class="preset-btn" id="preset-hdf">🔴 Thermal Dissipation (HDF)</button>
+              <button class="preset-btn" id="preset-pwf">⚡ Power Overdrive (PWF)</button>
+              <button class="preset-btn" id="preset-osf">⚠️ High Torque Overstrain (OSF)</button>
+              <button class="preset-btn" id="preset-twf">🟡 Worn Tool Limit (TWF)</button>
+            </div>
+          </div>
+
+          <form id="simulator-form">
+            <div class="control-group">
+              <label class="control-label" for="sim-machine-type">Machine Type Variant:</label>
+              <select id="sim-machine-type" class="form-select">
+                <option value="M">Medium Variant (M) - Standard Industrial</option>
+                <option value="L">Light Variant (L) - Rapid Low-Load</option>
+                <option value="H">Heavy Variant (H) - Heavy Duty</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>Air Temperature [K]:</span>
+                <span id="val-air-temp" class="control-val">298.2 K</span>
+              </div>
+              <input type="range" class="range-input" id="input-air-temp" min="285.0" max="315.0" step="0.1" value="298.2">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>Process Temperature [K]:</span>
+                <span id="val-proc-temp" class="control-val">308.7 K</span>
+              </div>
+              <input type="range" class="range-input" id="input-proc-temp" min="290.0" max="330.0" step="0.1" value="308.7">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>Rotational Speed [RPM]:</span>
+                <span id="val-rot-speed" class="control-val">1500 RPM</span>
+              </div>
+              <input type="range" class="range-input" id="input-rot-speed" min="800" max="3200" step="10" value="1500">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>Motor Torque [Nm]:</span>
+                <span id="val-torque" class="control-val">40.0 Nm</span>
+              </div>
+              <input type="range" class="range-input" id="input-torque" min="5.0" max="110.0" step="0.5" value="40.0">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>Tool Wear [Minutes]:</span>
+                <span id="val-tool-wear" class="control-val">15.0 min</span>
+              </div>
+              <input type="range" class="range-input" id="input-tool-wear" min="0" max="260" step="1" value="15">
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.8rem;" id="btn-submit-predict">
+              ⚡ Execute Real-Time ML Inference
+            </button>
+          </form>
+        </div>
+
+        <!-- Simulator Prediction Output -->
+        <div class="glass-card prediction-result-card">
+          <div>
+            <h3>Inference Diagnostics Output</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+              Real-time classification powered by active model <strong id="sim-model-version">v1.2.0</strong>
+            </p>
+
+            <div id="sim-risk-banner" class="risk-banner risk-NORMAL">
+              <div class="risk-title" id="sim-risk-title">NORMAL STATUS</div>
+              <div class="risk-probability" id="sim-failure-prob">2.4%</div>
+              <div style="font-size: 0.85rem;" id="sim-failure-mode-text">Failure Mode: No Failure</div>
+            </div>
+
+            <h4>Derived Physical Variables</h4>
+            <div class="physics-metrics-grid">
+              <div class="physics-tile">
+                <span>Power Consumption</span>
+                <strong id="sim-calc-power">6,283 W</strong>
+              </div>
+              <div class="physics-tile">
+                <span>Thermal Gradient (ΔT)</span>
+                <strong id="sim-calc-delta">10.5 K</strong>
+              </div>
+              <div class="physics-tile">
+                <span>Torque × Wear Product</span>
+                <strong id="sim-calc-wear-torque">600 Nm·min</strong>
+              </div>
+              <div class="physics-tile">
+                <span>Model Confidence</span>
+                <strong id="sim-confidence">97.6%</strong>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+              <h4>Estimated Machine Health Rating</h4>
+              <div class="health-bar-container">
+                <div class="health-bar-labels">
+                  <span>Operating Vitality</span>
+                  <strong id="sim-health-score">97.6%</strong>
+                </div>
+                <div class="health-progress-track">
+                  <div class="health-progress-fill" id="sim-health-bar" style="width: 97.6%; background: var(--accent-emerald);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted);">
+            Physical threshold rules: HDF triggered if ΔT &lt; 8.6K and RPM &lt; 1380; PWF triggered if Power &lt; 3500W or &gt; 9000W; OSF triggered by Torque × Wear overload.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: ML MODEL PERFORMANCE & DIAGNOSTICS -->
+    <section id="tab-ml" class="tab-pane">
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2>Model Intelligence & Training Performance</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Genuine scikit-learn evaluation metrics trained on standard AI4I 2020 predictive maintenance benchmark.
+            </p>
+          </div>
+          <button class="btn-primary" id="btn-retrain-model">
+            🔄 Retrain Model Pipeline
+          </button>
+        </div>
+      </div>
+
+      <!-- Real ML Metrics Grid -->
+      <div class="stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon emerald">🎯</div>
+          <div class="stat-data">
+            <h3>Test Accuracy</h3>
+            <div class="stat-value" id="ml-stat-accuracy">93.7%</div>
+            <div class="stat-sub">Held-out test set</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon cyan">📈</div>
+          <div class="stat-data">
+            <h3>ROC - AUC Score</h3>
+            <div class="stat-value" id="ml-stat-roc">0.988</div>
+            <div class="stat-sub">Discrimination quality</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon amber">⚖️</div>
+          <div class="stat-data">
+            <h3>Recall (Sensitivity)</h3>
+            <div class="stat-value" id="ml-stat-recall">91.0%</div>
+            <div class="stat-sub">Failure catch rate</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon rose">💎</div>
+          <div class="stat-data">
+            <h3>F1-Score</h3>
+            <div class="stat-value" id="ml-stat-f1">0.841</div>
+            <div class="stat-sub">Harmonic mean</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem;">
+        <!-- Feature Importances -->
+        <div class="glass-card">
+          <h3>Top Physical Feature Importances</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Relative contribution of each physical sensor & derived feature to failure prediction.
+          </p>
+          <div id="feature-importance-bars">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Confusion Matrix & Hyperparameters -->
+        <div class="glass-card">
+          <h3>Confusion Matrix Evaluation</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Test sample predictions (2,000 hold-out instances):
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; text-align: center; margin-bottom: 1.5rem;">
+            <div class="physics-tile" style="border-left: 3px solid var(--accent-emerald);">
+              <span>True Negatives (Normal)</span>
+              <strong id="cm-tn">1,542</strong>
+            </div>
+            <div class="physics-tile" style="border-left: 3px solid var(--accent-amber);">
+              <span>False Positives (False Alarms)</span>
+              <strong id="cm-fp">93</strong>
+            </div>
+            <div class="physics-tile" style="border-left: 3px solid var(--accent-rose);">
+              <span>False Negatives (Missed)</span>
+              <strong id="cm-fn">33</strong>
+            </div>
+            <div class="physics-tile" style="border-left: 3px solid var(--accent-cyan);">
+              <span>True Positives (Caught)</span>
+              <strong id="cm-tp">332</strong>
+            </div>
+          </div>
+
+          <h4>Model Parameters</h4>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.8;">
+            <div>Algorithm: <strong>Balanced Random Forest + Multi-Class Head</strong></div>
+            <div>Estimators: <strong>150 Trees</strong></div>
+            <div>Feature Count: <strong>13 Engineered Indicators</strong></div>
+            <div>Dataset: <strong>AI4I 2020 Predictive Maintenance (10,000 items)</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ACTIVE ALERTS & MAINTENANCE WORK ORDERS -->
+    <section id="tab-alerts" class="tab-pane">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <!-- Alerts Panel -->
+        <div class="glass-card">
+          <div class="section-header">
+            <h3>Active Industrial Alerts</h3>
+            <button class="btn-secondary" id="btn-refresh-alerts">↻ Refresh</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Machine</th>
+                  <th>Severity</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="alerts-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Maintenance Work Orders Panel -->
+        <div class="glass-card">
+          <div class="section-header">
+            <h3>Maintenance Operations</h3>
+            <button class="btn-primary" id="btn-open-maint-modal">+ New Work Order</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Machine</th>
+                  <th>Technician</th>
+                  <th>Status</th>
+                  <th>Cost</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="maintenance-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- New Maintenance Work Order Modal -->
+  <div class="modal-overlay" id="modal-maintenance">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 1rem;">Schedule Maintenance Service</h3>
+      <form id="form-create-maintenance">
+        <div class="control-group">
+          <label class="control-label" for="maint-machine-id">Target Machine:</label>
+          <select id="maint-machine-id" class="form-select" required></select>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="maint-technician">Assigned Technician:</label>
+          <input type="text" id="maint-technician" class="form-input" placeholder="e.g. Alex Vance" required>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="maint-cost">Estimated Cost ($):</label>
+          <input type="number" id="maint-cost" class="form-input" min="0" step="10" value="450">
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="maint-notes">Service Description & Notes:</label>
+          <textarea id="maint-notes" class="form-textarea" rows="3" placeholder="Inspection, lubrication, or tool replacement"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
+          <button type="button" class="btn-secondary" id="btn-close-modal">Cancel</button>
+          <button type="submit" class="btn-primary">Create Work Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Frontend JS Application -->
+  <script src="/js/app.js"></script>
+</body>
+</html>
